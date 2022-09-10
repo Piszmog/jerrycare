@@ -1,28 +1,30 @@
 <script lang='ts'>
   import { createEventDispatcher } from 'svelte';
-  import type { CareStep } from '$lib/utils/types';
-  import { State } from '$lib/utils/types';
+  import type { CheckedEvent } from '$lib/utils/types';
 
-  export let step: CareStep;
-  export let state: State.Completed | State.NotCompleted;
+  export let id: number;
+  export let title: string;
+  export let description: string | null | undefined;
+  export let link: string | null | undefined;
+  export let completed_at: string | Date | null;
+  export let checked: boolean;
 
-  const dispatch = createEventDispatcher();
-  const onChanged = () => dispatch('completed', { id: step.id });
-
-  let checked = '';
-  if (state === State.Completed) {
-    checked = 'checked';
-  }
+  const dispatch = createEventDispatcher<{ changed: CheckedEvent }>();
 </script>
 
-<div class='form-control'>
-  <label class='label cursor-pointer'>
+<div class='form-control m-2'>
+  <label class='cursor-pointer'>
     <input
-      {checked}
+      bind:checked
       class='checkbox'
-      on:change={onChanged}
+      on:change={()=> dispatch('changed', { id, checked })}
       type='checkbox'
     />
-    <span class='label-text'>{step.title}</span>
+    <span class='label-text'>{title}</span>
+    <span class='label-text text-xs'>
+      {#if completed_at}
+        (Completed on: {new Date(completed_at).toLocaleString()})
+      {/if}
+    </span>
   </label>
 </div>

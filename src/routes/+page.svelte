@@ -4,8 +4,8 @@
 </script>
 
 <svelte:head>
-  <title>{$page.data.animal.name} - {$page.data.day.date.toLocaleDateString()}</title>
-  <meta name='description' content="{$page.data.animal.name}'s care on {$page.data.day.date.toLocaleDateString()}" />
+  <title>{$page.data.animal.name} - {$page.data.day.date}</title>
+  <meta name='description' content="{$page.data.animal.name}'s care on {$page.data.day.date}" />
 </svelte:head>
 
 <section>
