@@ -47,14 +47,19 @@ export type Care = {
   title: string;
   description?: string;
   link?: string;
-  completed_state: CompletedState;
-  completed_at: string | Date | null;
   complete_by: string;
 
   steps?: Step[];
 }
 
-export const getCompletedState = (steps: Step[]): CompletedState => {
+export type CareOnDay = {
+  care_id: number;
+  day_id: number;
+  completed_state: CompletedState;
+  completed_at: string | Date | null;
+}
+
+export const getCompletedState = (steps: StepOnDay[]): CompletedState => {
   const isComplete = steps.every((step) => step.completed);
   if (isComplete) {
     return CompletedState.Completed;
@@ -80,6 +85,11 @@ export type Step = {
   title: string;
   description?: string;
   link?: string;
+}
+
+export type StepOnDay = {
+  step_id: number;
+  day_id: number;
   completed: boolean;
   completed_at: string | Date | null;
 }
@@ -89,4 +99,7 @@ export type Day = {
   animal_id: number;
   date: string;
   updated_at: string;
+
+  care?: CareOnDay[];
+  steps?: StepOnDay[];
 }
