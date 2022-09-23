@@ -70,7 +70,7 @@
     completed_state = getCompletedState(stepResults);
     if (completed_state == CompletedState.Completed) {
       completed_at = new Date();
-    } else if (completed_state == CompletedState.NotCompleted) {
+    } else {
       completed_at = null;
     }
     await setCareCompletedState(id, dayId, completed_state, completed_at);
