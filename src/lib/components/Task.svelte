@@ -79,8 +79,16 @@
     } else {
       completed_at = null;
     }
-    await setCareCompletedState(id, dayId, completed_state, completed_at);
-    await setStepCompletedState(event.detail.id, dayId, stepChecked, stepChecked ? new Date() : null);
+    const { error: careError } = await setCareCompletedState(id, dayId, completed_state, completed_at);
+    if (careError) {
+      console.error(careError);
+      return;
+    }
+    const { error: stepError } = await setStepCompletedState(event.detail.id, dayId, stepChecked, stepChecked ? new Date() : null);
+    if (stepError) {
+      console.error(stepError);
+      return;
+    }
   };
 
   const handleInfoClick = () => {
@@ -118,7 +126,6 @@
   </label>
   <!--{/if}-->
 </div>
-
 
 <div class='ml-8'>
   {#each stepResults as result}
