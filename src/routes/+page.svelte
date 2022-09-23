@@ -9,5 +9,5 @@
 </svelte:head>
 
 <section>
-  <Tasks care={$page.data.animal.care} />
+  <Tasks care={$page.data.animal.care} day={$page.data.day} />
 </section>

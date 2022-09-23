@@ -21,7 +21,7 @@ export type Animal = {
   name: string;
   created_at: string | Date;
 
-  care?: Care[];
+  care?: CareDetails[];
   days?: Day[];
 }
 
@@ -41,7 +41,7 @@ export enum Role {
   User = 'USER',
 }
 
-export type Care = {
+export type CareDetails = {
   id: number;
   animal_id: number;
   title: string;
@@ -49,29 +49,15 @@ export type Care = {
   link?: string;
   complete_by: string;
 
-  steps?: Step[];
+  steps?: StepDetails[];
 }
 
-export type CareOnDay = {
+export type DayCareResult = {
   care_id: number;
   day_id: number;
   completed_state: CompletedState;
   completed_at: string | Date | null;
 }
-
-export const getCompletedState = (steps: StepOnDay[]): CompletedState => {
-  const isComplete = steps.every((step) => step.completed);
-  if (isComplete) {
-    return CompletedState.Completed;
-  }
-
-  const isPartial = steps.some((step) => step.completed);
-  if (isPartial) {
-    return CompletedState.Partial;
-  }
-
-  return CompletedState.NotCompleted;
-};
 
 export enum CompletedState {
   Completed = 'COMPLETED',
@@ -79,7 +65,7 @@ export enum CompletedState {
   Partial = 'PARTIAL',
 }
 
-export type Step = {
+export type StepDetails = {
   id: number;
   care_id: number;
   title: string;
@@ -87,12 +73,27 @@ export type Step = {
   link?: string;
 }
 
-export type StepOnDay = {
+export type DayStepResult = {
   step_id: number;
   day_id: number;
   completed: boolean;
   completed_at: string | Date | null;
 }
+
+export const getCompletedState = (results: DayStepResult[]): CompletedState => {
+  const isComplete = results.every((step) => step.completed);
+  if (isComplete) {
+    return CompletedState.Completed;
+  }
+
+  const isPartial = results.some((step) => step.completed);
+  if (isPartial) {
+    return CompletedState.Partial;
+  }
+
+  return CompletedState.NotCompleted;
+};
+
 
 export type Day = {
   id: number;
@@ -100,6 +101,6 @@ export type Day = {
   date: string;
   updated_at: string;
 
-  care?: CareOnDay[];
-  steps?: StepOnDay[];
+  day_care_results?: DayCareResult[];
+  day_step_results?: DayStepResult[];
 }

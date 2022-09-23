@@ -1,18 +1,20 @@
 <script lang='ts'>
-  import type { CheckedEvent, Step as CareStep } from '$lib/utils/types';
+  import type { CheckedEvent, DayStepResult, StepDetails } from '$lib/utils/types';
   import { CompletedState, getCompletedState } from '$lib/utils/types';
   import Step from '$lib/components/Step.svelte';
   import { setCareAndStepCompletedState, setCareCompletedState, setStepCompletedState } from '$lib/utils/supabase';
   import { formatTimetz } from '$lib/utils/time.js';
 
   export let id: number;
+  export let dayId: number;
   export let title: string;
   export let description: string | null;
   export let link: string | null | undefined;
   export let completed_state: CompletedState;
   export let completed_at: Date | null;
   export let complete_by: string;
-  export let steps: CareStep[];
+  export let steps: StepDetails[];
+  export let stepResults: DayStepResult[];
 
   let checked: boolean;
   let indeterminate: boolean;
@@ -35,44 +37,44 @@
   }
 
   const handleCareChange = async () => {
-    steps.forEach((step) => {
+    stepResults.forEach((result) => {
       if (checked) {
-        if (!step.completed) {
-          step.completed = true;
-          step.completed_at = new Date();
+        if (!result.completed) {
+          result.completed = true;
+          result.completed_at = new Date();
         }
       } else {
-        step.completed = false;
-        step.completed_at = null;
+        result.completed = false;
+        result.completed_at = null;
       }
     });
-    steps = [...steps];
+    stepResults = [...stepResults];
 
     completed_state = checked ? CompletedState.Completed : CompletedState.NotCompleted;
     completed_at = checked ? new Date() : null;
-    await setCareAndStepCompletedState(id, completed_state, completed_at);
+    await setCareAndStepCompletedState(id, dayId, completed_state, completed_at);
   };
 
   const handleStepChecked = async (event: CustomEvent<CheckedEvent>) => {
-    const currentStep = steps!.find((step: CareStep) => step.id === event.detail.id);
+    const currentStepResult = stepResults!.find((results) => results.step_id === event.detail.id);
     const stepChecked = event.detail.checked;
     if (stepChecked) {
-      currentStep.completed = true;
-      currentStep.completed_at = new Date();
+      currentStepResult.completed = true;
+      currentStepResult.completed_at = new Date();
     } else {
-      currentStep.completed = false;
-      currentStep.completed_at = null;
+      currentStepResult.completed = false;
+      currentStepResult.completed_at = null;
     }
-    steps = [...steps];
+    stepResults = [...stepResults];
 
-    completed_state = getCompletedState(steps);
+    completed_state = getCompletedState(stepResults);
     if (completed_state == CompletedState.Completed) {
       completed_at = new Date();
     } else if (completed_state == CompletedState.NotCompleted) {
       completed_at = null;
     }
-    await setCareCompletedState(id, completed_state, completed_at);
-    await setStepCompletedState(event.detail.id, stepChecked, stepChecked ? new Date() : null);
+    await setCareCompletedState(id, dayId, completed_state, completed_at);
+    await setStepCompletedState(event.detail.id, dayId, stepChecked, stepChecked ? new Date() : null);
   };
 </script>
 
@@ -97,12 +99,14 @@
 </div>
 
 <div class='ml-8'>
-  {#each steps as step}
+  {#each stepResults as result}
+    {@const step = steps.find((step) => step.id === result.step_id)}
     <Step
       {...step}
+      {...result}
       on:changed={handleStepChecked}
-      bind:checked={step.completed}
-      bind:completed_at={step.completed_at}
+      bind:checked={result.completed}
+      bind:completed_at={result.completed_at}
     />
   {/each}
 </div>
